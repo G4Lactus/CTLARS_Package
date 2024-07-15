@@ -1,6 +1,27 @@
+#' @title
+#' ctlars R6 class.
+#'
+#' @description
+#' The implementation of the ctlars algorithm as R6 class.
+#'
+#' @import EigenR
+#' @import R6
+#'
+#' @docType class
+#' @name ctlars
+#' @export
+#' @examples
+#' set.seed(42)
+# --------------------------------------------------------------
 ctlars <- R6::R6Class(
-  "ctlars",
+  "ctlars", # class name
   public = list(
+
+    #' @field x The predictor matrix.
+    #' @field y The response vector.
+    #' @field has_intercept Logical. Whether the model includes an intercept.
+    #' @field standardize Logical. Whether to standardize the predictor matrix.
+    #' @field verbose Logical. Whether to print progress messages.
     # Public attributes
     # --------------------
     x = NULL,
@@ -12,6 +33,16 @@ ctlars <- R6::R6Class(
     # Public methods
     # ---------------------
     # constructor method
+    #' @description
+    #' Create a new ctlars object.
+    #' @param x The predictor matrix.
+    #' @param y The response vector.
+    #' @param has_intercept Logical. Whether the model includes an intercept. Default is TRUE.
+    #' @param standardize Logical. Whether to standardize the predictor matrix. Default is TRUE.
+    #' @param num_dummies Integer. Number of dummy variables. Default is the number of columns in `x`.
+    #' @param verbose Logical. Whether to print progress messages. Default is TRUE.
+    #' @param tol Numeric. Tolerance for numerical calculations. Default is `.Machine$double.eps`.
+    #' @return A new ctlars object.
     initialize = function(
       x,
       y,
@@ -28,19 +59,25 @@ ctlars <- R6::R6Class(
       self$standardize <- standardize
       self$verbose <- verbose
       private$tol <- tol
-      private$num_nummies <- num_dummies
+      private$num_dummies <- num_dummies
 
       # prepare inputs
       private$initialize_values()
     },
 
     # execute clars step
-    execute_clars_step = function(t_stop, early_stop = TRUE) {
-      private$check_step_input(t_stop, early_stop)
+    #' @description
+    #' Execute a CLARS step.
+    #' @param t_stop Numeric. Stopping criterion for the algorithm.
+    #' @param early_stop Logical. Whether to stop early based on certain conditions. Default is TRUE.
+    #' @param use_chol Logical. Whether to use Cholesky decomposition. Default is TRUE.
+    execute_clars_step = function(t_stop, early_stop = TRUE, use_chol = TRUE) {
+      private$check_step_input(t_stop, early_stop, use_chol)
 
-      while (private$p_active < private$effective_n &&
+      while (
+        private$lars_step_k < private$max_steps &&
           private$p_inactive > 0 &&
-          private$lars_step_k < private$max_steps &&
+          private$p_active < private$effective_n &&
           (private$count_dummies <= t_stop || early_stop == FALSE)
       ) {
 
@@ -51,6 +88,10 @@ ctlars <- R6::R6Class(
         # Step (2.2)
         # Find maximum absolute current correlation
         c_tild <- max(Mod(c_hat))
+        if (c_tild < 100 * private$tol) {
+          cat("Max |corr| = 0. Exiting.")
+          break
+        }
 
         # Step (2.3)
         # 1st iteration: select the indices of the maximum absolute current
@@ -102,7 +143,9 @@ ctlars <- R6::R6Class(
         g_mat <- Conj(t(sigaligned_x_s)) %*% sigaligned_x_s
 
         # Invert Gramian matrix
-        inv_g_mat <- private$compute_gram_inverse(g_mat)
+        inv_g_mat <- private$compute_gram_inverse(g_mat,
+                                                  lambda = 1e-8,
+                                                  use_chol = use_chol)
 
         # one vector
         one <- rep(1, times = private$p_active)
@@ -147,32 +190,74 @@ ctlars <- R6::R6Class(
       }
     },
 
+    #' @description
+    #' Get the active set of predictors.
+    #' @return A vector of indices representing the active set of predictors.
     get_active_set = function() {
       return(private$index_actives)
     },
 
+    #' @description
+    #' Get the estimated coefficients.
+    #' @return A vector of estimated coefficients.
     get_beta_hat = function() {
       return(Conj(t(private$beta_zm))[, private$lars_step_k])
     },
 
+    #' @description
+    #' Get the history of estimated coefficients.
+    #' @return A matrix of estimated coefficients over iterations.
     get_beta_history = function() {
       return(Conj(t(private$beta_zm)))
     },
 
+    #' @description
+    #' Get the predicted response values.
+    #' @return A vector of predicted response values.
     get_y_hat = function() {
       return(private$y_hat)
     },
 
+    #' @description
+    #' Get the sum of squared residuals.
+    #' @return A numeric value representing the sum of squared residuals.
     get_ssr = function() {
       return(private$ssr)
     },
 
+    #' @description
+    #' Get the R-squared value.
+    #' @return A numeric value representing the R-squared value.
     get_r2 = function() {
       return(private$r2)
     },
 
+    #' @description
+    #' Get the active dummy variables.
+    #' @return A vector of indices representing the active dummy variables.
     get_active_dummies = function() {
       return(intersect(private$index_actives, private$dummy_idx))
+    },
+
+    #' @description
+    #' Get the number of dummy variables.
+    #' @return An integer representing the number of dummy variables.
+    get_num_dummies = function() {
+      return(private$num_dummies)
+    },
+
+    #' @description
+    #' Get the number of observations.
+    #' @return An integer representing the number of observations.
+    get_n = function() {
+      return(private$n_rows)
+    },
+
+    #' @description
+    #' Get the number of predictors.
+    #' @return An integer representing the number of predictors.
+    get_p = function() {
+      return(private$p_cols - private$num_dummies)
     }
 
   ),
@@ -201,7 +286,7 @@ ctlars <- R6::R6Class(
     p_idx = NULL,
     lars_step_k = NULL,
     x_ct = NULL,
-    num_nummies = NULL,
+    num_dummies = NULL,
     count_dummies = 0,
     early_stop = FALSE,
     dummy_idx = FALSE,
@@ -258,7 +343,7 @@ ctlars <- R6::R6Class(
 
       # Sequence of available dummies
       private$dummy_idx <- seq(
-        from = private$p_cols - private$num_nummies + 1,
+        from = private$p_cols - private$num_dummies + 1,
         to = private$p_cols
       )
 
@@ -286,13 +371,15 @@ ctlars <- R6::R6Class(
       }
     },
 
-    check_step_input = function(t_stop, early_stop) {
-      if (!is.numeric(t_stop) || t_stop <= 0) {
-        stop("Your `t_stop` must be numeric and at least 1.")
+    check_step_input = function(t_stop, early_stop, use_chol) {
+      if (!is.numeric(t_stop) || t_stop < 1) {
+        stop("Invalid value for t_stop. It should be a numeric value greater than 0.")
       }
-
       if (!is.logical(early_stop)) {
-        stop("Your `early_stop` parameter must be logical.")
+        stop("Invalid value for early_stop. It should be either TRUE or FALSE.")
+      }
+      if (!is.logical(use_chol)) {
+        stop("Invalid value for use_chol. It should be either TRUE or FALSE.")
       }
     },
 
@@ -356,21 +443,32 @@ ctlars <- R6::R6Class(
       )
     },
 
-    compute_gram_inverse = function(gram_mat) {
-      tryCatch({
-        # Attempt to compute the inverse with the default tolerance level
-        return(Matrix::solve(gram_mat, tol = 1e-2 * private$tol_val))
-      }, error = function(e) {
-        # Check if the error message indicates computational singularity
-        if (grepl("System is computationally singular.", conditionMessage(e))) {
-          # If singularity is detected, reduce the tolerance level and retry
-          reduced_tol <- private$tol_val ** private$lars_step_k
-          return(Matrix::solve(gram_mat, tol = reduced_tol))
-        } else {
-          # If it's a different error, re-throw the error
-          stop(e)
-        }
-      })
+    compute_gram_inverse = function(gram_mat, lambda = 1e-6, use_chol = FALSE) {
+      return(
+        tryCatch({
+          # Attempt to invert the Gram matrix
+          if (!use_chol) {
+            return(EigenR::Eigen_inverse(gram_mat))
+          }
+          if (private$lars_step_k == private$effective_n) {
+            c <- lambda * complex(real = 1, imag = 1)
+            diag(gram_mat) <- diag(gram_mat) + c
+          }
+          lmat <- EigenR::Eigen_chol(gram_mat)
+          linv <- EigenR::Eigen_inverse(lmat)
+          return(linv %*% Conj(t(linv)))
+        }, error = function(e) {
+          # Singular matrix
+          c <- lambda * complex(real = 1, imag = 1)
+          diag(gram_mat) <- diag(gram_mat) + c
+          if (!use_chol) {
+            return(EigenR::Eigen_inverse(gram_mat))
+          }
+          lmat <- EigenR::Eigen_chol(gram_mat)
+          linv <- EigenR::Eigen_inverse(lmat)
+          return(linv %*% Conj(t(linv)))
+        })
+      )
     },
 
     update_beta_zm = function(
@@ -385,11 +483,12 @@ ctlars <- R6::R6Class(
           Conj(beta_zm[private$lars_step_k - 1,
                        private$index_actives]) +
           private$gamma_hat[private$lars_step_k] * (sign_val * w_a)
+        private$beta_zm <- rbind(beta_zm, Conj(t(beta_tmp)))
       } else {
         beta_tmp[private$index_actives] <-
           private$gamma_hat[private$lars_step_k] * (sign_val * w_a)
+        private$beta_zm <- Conj(t(beta_tmp))
       }
-      private$beta_zm <- rbind(beta_zm, Conj(t(beta_tmp)))
     },
 
     update_gamma_hat = function(

@@ -1,3 +1,7 @@
 ^ctlars\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^README\.Rmd$
+^README\.html$
+^cran-comments\.md$
+^R_demo_scripts

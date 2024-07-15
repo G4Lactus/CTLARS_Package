@@ -1,0 +1,7 @@
+# Set compiler flags for OpenMP, LAPACK, BLAS, and Fortran libraries
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+# Manually set Rcpp LdFlags
+# RCPP_CXXFLAGS = `$(R_HOME)/bin/Rscript -e "Rcpp:::CxxFlags()"`
+# PKG_LIBS = $(PKG_LIBS) $(RCPP_CXXFLAGS)

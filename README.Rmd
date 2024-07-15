@@ -12,7 +12,22 @@ editor_options:
 ---
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r, include = FALSE}
+# Store user's options()
+old_options <- options()
 
+if (!dir.exists("man/figures/"))
+{
+  dir.create("man/figures/")
+}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
 # ctlars
 
@@ -42,8 +57,7 @@ performing variable selection in space high-dimensional complex data space,
 using the CTLARS algorithm.
 
 1. **First**, we generate high-dimensional Gaussian data set with sparse support.
-
-``` r
+```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 library(ctlars)
 
 generate_simdata <- FALSE
@@ -78,8 +92,7 @@ if (generate_simdata) {
  dummy predictors sampled from a white circularly centered symmetric complex
  Gaussian and append it to the original predictor matrix.
 
-
-``` r
+```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
  # Append dummies
  set.seed(789)
  update_data <- function(data_lst, num_dummies = p) {
@@ -103,66 +116,32 @@ if (generate_simdata) {
  
 
 3. **Third**, we generate an object of class `ctlars` and supply the information:
-
-``` r
+```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 # Run complex terminating lars algorithm
 # ----------------------------------------
 ctlars_obj <- ctlars::ctlars$new(data$X,
                                   data$y,
                                   num_dummies = data$num_dummies
                                   )
-```
+``` 
 
 4. **Fourth**, we perform on CTLARS step on `ctlars_obj`, i.e., the CTLARS
 algorithm is run until **t_stop = 1** dummy has entered the solution path
 and stops there:
-
-``` r
+```{r terminated_solution_t_1, echo=TRUE, fig.align='center', message=TRUE, fig.width = 10, fig.height = 6, out.width = "90%"}
 ctlars_obj$execute_clars_step(t_stop = 1, early_stop = TRUE, use_chol = TRUE)
-#> complex LARS iteration 1 
-#> complex LARS iteration 2 
-#> complex LARS iteration 3 
-#> complex LARS iteration 4 
-#> complex LARS iteration 5 
-#> complex LARS iteration 6 
-#> complex LARS iteration 7 
-#> complex LARS iteration 8 
-#> complex LARS iteration 9 
-#> complex LARS iteration 10 
-#> complex LARS iteration 11 
-#> complex LARS iteration 12 
-#> complex LARS iteration 13
 ```
 
 5. **Five** We evaluate the selection results after **t_stop = 1** dummies have
 been selected.
-
-``` r
+```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 # Test
 # ----------------------------------------
 cat("Proposed index set by CLARS: ", ctlars_obj$get_active_set(), "\n")
-#> Proposed index set by CLARS:  50 113 138 146 63 77 55 18 127 78 252 114 132
-```
-
-``` r
 cat("True support: ", drop(data$support), "\n")
-#> True support:  50 146 113 138 63
-```
-
-``` r
 cat("Proposal in true support: ",
      intersect(ctlars_obj$get_active_set(), drop(data$support)), "\n")
-#> Proposal in true support:  50 113 138 146 63
-```
-
-``` r
 cat("Dummies in proposal: ", ctlars_obj$get_active_dummies(), "\n")
-#> Dummies in proposal:  252
-```
-
-``` r
  
 plot(ctlars_obj)
 ```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" />
