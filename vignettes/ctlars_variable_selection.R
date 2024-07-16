@@ -227,7 +227,9 @@ tpr_vs_fdr <- ggplot(plot_data, aes(x = FDR, y = TPR)) +
    theme_bw(base_size = 16) +
    theme(panel.background = element_rect(fill = "white",
                                          color = "black",
-                                         linewidth = 1))
+                                         linewidth = 1)
+         )
+
 tpr_vs_fdr
  
 
