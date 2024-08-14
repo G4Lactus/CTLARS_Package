@@ -521,12 +521,17 @@ ctlars <- R6::R6Class(
         min_gam_2 <- min(min_gam_1)
         min_ind_2 <- which(Mod(min_gam_1 - min_gam_2) < tol * min_gam_2)
 
-        ind_candid <- compl_set[min_ind_2]
-        if (ind_candid %in% private$dummy_idx) {
+        idx_candid <- compl_set[min_ind_2]
+        # modification to add only strictly one variable to the active set.
+        if (length(idx_candid) > 1) {
+          idx_candid <- idx_candid[1]
+        }
+
+        if (idx_candid %in% private$dummy_idx) {
           private$count_dummies <- private$count_dummies + 1
         }
         # ------------
-        private$new_index <- ind_candid
+        private$new_index <- idx_candid
         private$gamma_hat[private$lars_step_k] <- min_gam_2
       }
     },
