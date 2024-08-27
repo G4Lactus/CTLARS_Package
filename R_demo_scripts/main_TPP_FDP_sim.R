@@ -3,6 +3,7 @@ rm(list = ls()) # clear the workspace
 library(ctlars)
 library(ggplot2)
 
+set.seed(824)
 t_vec <- c(1, 2, 5, 10, 20, 50, 100)
 sim_res <- simulate_model_TPR_FDR(
   t_vec,
@@ -12,7 +13,7 @@ sim_res <- simulate_model_TPR_FDR(
   num_actives = 10,
   num_dummies = 300,
   snr_is_linear = TRUE,
-  snr_val_linear = 2
+  snr_val_linear = 1
 )
 
 # data frame containing data to be plotted (FDR and TPR in %)
