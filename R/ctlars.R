@@ -78,7 +78,7 @@ ctlars <- R6::R6Class(
         private$lars_step_k < private$max_steps &&
           private$p_inactive > 0 &&
           private$p_active < private$effective_n &&
-          (private$count_dummies <= t_stop || early_stop == FALSE)
+          (private$count_dummies < t_stop || early_stop == FALSE)
       ) {
 
         # Step (2.1)
@@ -99,7 +99,14 @@ ctlars <- R6::R6Class(
         if (private$lars_step_k == 1) {
           # Find index of every correlation that is within tolerance
           # of the max correlation
-          c_max_ind <- which(abs(c_hat) > private$tolc * c_tild)
+
+          # TODO: examine invfluence
+          #c_max_ind <- which(Mod(c_hat) > private$tolc * c_tild)
+          # -> can introduce ambiguity
+          #if (length(c_max_ind) > 1) {
+          c_max_ind <- which.max(Mod(c_hat))
+          #}
+
           if (c_max_ind %in% private$dummy_idx) {
             private$count_dummies <- private$count_dummies + 1
           }
@@ -108,7 +115,11 @@ ctlars <- R6::R6Class(
         private$progress_report()
 
         # Add the appropriate indices to the active set
-        private$index_actives <- c(private$index_actives, private$new_index)
+        if ((private$new_index %in% private$dummy_idx) &
+            !(private$new_index %in% private$index_actives)) {
+          private$count_dummies <- private$count_dummies + 1
+        }
+        private$index_actives <- union(private$index_actives, private$new_index)
         private$coef_index_track[[private$lars_step_k]] <- private$index_actives
 
         # Calculate the number of indices in the active set
@@ -177,14 +188,18 @@ ctlars <- R6::R6Class(
         private$y_hat <- private$y_hat +
           private$gamma_hat[private$lars_step_k] * u_a
 
-        # increment clars step
-        private$lars_step_k <- private$lars_step_k + 1
-
         # update residual
         private$res <- self$y - private$y_hat
 
         # update statistics
         private$update_statistics()
+
+        if (private$count_dummies >= t_stop && early_stop == TRUE) {
+          break
+        }
+
+        # increment clars step
+        private$lars_step_k <- private$lars_step_k + 1
 
         # End of CLARS step
       }
@@ -305,7 +320,7 @@ ctlars <- R6::R6Class(
       # effective n reduced by 1 if intercept is TRUE
       private$set_effective_n()
 
-      # max CLars steps rule of thumb (according to Hastie et. al.)
+      # max clars steps rule of thumb (according to Hastie et. al.)
       private$set_max_clars_steps()
 
       # initialize CLars step counter
@@ -527,9 +542,6 @@ ctlars <- R6::R6Class(
           idx_candid <- idx_candid[1]
         }
 
-        if (idx_candid %in% private$dummy_idx) {
-          private$count_dummies <- private$count_dummies + 1
-        }
         # ------------
         private$new_index <- idx_candid
         private$gamma_hat[private$lars_step_k] <- min_gam_2
