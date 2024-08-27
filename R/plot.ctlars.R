@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 plot.ctlars <- function(x,
                         xlab = "# Included dummies",
-                        ylab = "Coefficients",
+                        ylab = "|Coefficients|",
                         include_dummies = TRUE,
                         actions = TRUE,
                         col_selected = "black",

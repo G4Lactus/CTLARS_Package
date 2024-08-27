@@ -7,7 +7,7 @@
 \method{plot}{ctlars}(
   x,
   xlab = "# Included dummies",
-  ylab = "Mod(Coefficients)",
+  ylab = "|Coefficients|",
   include_dummies = TRUE,
   actions = TRUE,
   col_selected = "black",
