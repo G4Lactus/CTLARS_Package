@@ -446,7 +446,6 @@ ctlars <- R6::R6Class(
         col <- x[, colX]
         col_std <- sqrt(sum(Mod(col) ** 2) / denum)
         if (col_std / sqrt_n < private$tol) {
-          #TODO
           private$p_idx <- setdiff(private$p_idx, colX)
           col_std <- private$tol * sqrt_n
           x[, colX] <- col_std
