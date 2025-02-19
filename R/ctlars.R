@@ -78,7 +78,7 @@ ctlars <- R6::R6Class(
         private$lars_step_k < private$max_steps &&
           private$p_inactive > 0 &&
           private$p_active < private$effective_n &&
-          (private$count_dummies <= t_stop || early_stop == FALSE)
+          (private$count_dummies < t_stop || early_stop == FALSE)
       ) {
 
         # Step (2.1)
@@ -88,6 +88,7 @@ ctlars <- R6::R6Class(
         # Step (2.2)
         # Find maximum absolute current correlation
         c_tild <- max(Mod(c_hat))
+        #browser()
         if (c_tild < 100 * private$tol) {
           cat("Max |corr| = 0. Exiting.")
           break
@@ -99,7 +100,14 @@ ctlars <- R6::R6Class(
         if (private$lars_step_k == 1) {
           # Find index of every correlation that is within tolerance
           # of the max correlation
-          c_max_ind <- which(abs(c_hat) > private$tolc * c_tild)
+
+          # TODO: examine invfluence
+          #c_max_ind <- which(Mod(c_hat) > private$tolc * c_tild)
+          # -> can introduce ambiguity
+          #if (length(c_max_ind) > 1) {
+          c_max_ind <- which.max(Mod(c_hat))
+          #}
+
           if (c_max_ind %in% private$dummy_idx) {
             private$count_dummies <- private$count_dummies + 1
           }
@@ -108,7 +116,11 @@ ctlars <- R6::R6Class(
         private$progress_report()
 
         # Add the appropriate indices to the active set
-        private$index_actives <- c(private$index_actives, private$new_index)
+        if ((private$new_index %in% private$dummy_idx) &
+            !(private$new_index %in% private$index_actives)) {
+          private$count_dummies <- private$count_dummies + 1
+        }
+        private$index_actives <- union(private$index_actives, private$new_index)
         private$coef_index_track[[private$lars_step_k]] <- private$index_actives
 
         # Calculate the number of indices in the active set
@@ -177,14 +189,18 @@ ctlars <- R6::R6Class(
         private$y_hat <- private$y_hat +
           private$gamma_hat[private$lars_step_k] * u_a
 
-        # increment clars step
-        private$lars_step_k <- private$lars_step_k + 1
-
         # update residual
         private$res <- self$y - private$y_hat
 
         # update statistics
         private$update_statistics()
+
+        if (private$count_dummies >= t_stop && early_stop == TRUE) {
+          break
+        }
+
+        # increment clars step
+        private$lars_step_k <- private$lars_step_k + 1
 
         # End of CLARS step
       }
@@ -305,15 +321,11 @@ ctlars <- R6::R6Class(
       # effective n reduced by 1 if intercept is TRUE
       private$set_effective_n()
 
-      # max CLars steps rule of thumb (according to Hastie et. al.)
+      # max clars steps rule of thumb (according to Hastie et. al.)
       private$set_max_clars_steps()
 
       # initialize CLars step counter
       private$lars_step_k <- 1
-
-      # Data preprocessing
-      # -------------------
-      private$normalize_data()
 
       # Container initialization
       # ------------------------
@@ -330,6 +342,7 @@ ctlars <- R6::R6Class(
       private$index_actives <- c()
 
       # Set up a list to track the history of indices
+      # TODO: redundant and can be deleted from appearance in code
       private$coef_index_track <- list()
 
       # Integer representing the current active number of covariates
@@ -338,7 +351,7 @@ ctlars <- R6::R6Class(
       # Integer representing the current inactive number of covariates
       private$p_inactive <- private$p_cols
 
-      # Sequence of available predictors
+      # Sequence of available candidate predictors
       private$p_idx <- seq(private$p_cols)
 
       # Sequence of available dummies
@@ -346,6 +359,10 @@ ctlars <- R6::R6Class(
         from = private$p_cols - private$num_dummies + 1,
         to = private$p_cols
       )
+
+      # Data preprocessing
+      # -------------------
+      private$normalize_data()
 
       # initialize residuals
       private$res <- self$y
@@ -413,6 +430,7 @@ ctlars <- R6::R6Class(
 
     scale_x = function() {
       x <- self$x
+
       # center values
       x <- scale(x, center = TRUE, scale = FALSE)
       n <- private$n_rows
@@ -421,13 +439,21 @@ ctlars <- R6::R6Class(
       } else {
         denum <- n - 1
       }
+      sqrt_n <- sqrt(n)
 
       # normalize
       for (colX in seq_len(private$p_cols)) {
         col <- x[, colX]
         col_std <- sqrt(sum(Mod(col) ** 2) / denum)
-        x[, colX] <- col / col_std
+        if (col_std / sqrt_n < private$tol) {
+          private$p_idx <- setdiff(private$p_idx, colX)
+          col_std <- private$tol * sqrt_n
+          x[, colX] <- col_std
+        } else {
+          x[, colX] <- col / col_std
+        }
       }
+
       self$x <- x
     },
 
@@ -504,6 +530,7 @@ ctlars <- R6::R6Class(
         private$gamma_hat[private$lars_step_k] <- c_tild / l_a
 
       } else { # (compl_set is not empty)
+        #browser()
         gamma_candids <- matrix(0, nrow = private$p_inactive, ncol = 2)
         mod_g_sq <- Mod(g) ** 2
         mod_c_sq <- Mod(c_hat) ** 2
@@ -516,17 +543,21 @@ ctlars <- R6::R6Class(
           gamma_candids[i, 1] <- (-b + sqrt(d)) / (2 * a)
           gamma_candids[i, 2] <- (-b - sqrt(d)) / (2 * a)
         }
+        #browser()
+        gamma_candids[is.na(gamma_candids)] <- Inf
         gamma_candids[gamma_candids <= 0] <- Inf
         min_gam_1 <- apply(gamma_candids, 1, min)
         min_gam_2 <- min(min_gam_1)
         min_ind_2 <- which(Mod(min_gam_1 - min_gam_2) < tol * min_gam_2)
 
-        ind_candid <- compl_set[min_ind_2]
-        if (ind_candid %in% private$dummy_idx) {
-          private$count_dummies <- private$count_dummies + 1
+        idx_candid <- compl_set[min_ind_2]
+        # modification to add only strictly one variable to the active set.
+        if (length(idx_candid) > 1) {
+          idx_candid <- idx_candid[1]
         }
+
         # ------------
-        private$new_index <- ind_candid
+        private$new_index <- idx_candid
         private$gamma_hat[private$lars_step_k] <- min_gam_2
       }
     },

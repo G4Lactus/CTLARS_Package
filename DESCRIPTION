@@ -8,11 +8,12 @@ Authors@R:
     person(given = "Michael", family = "Muma", email = "michael.muma@tu-darmstadt.de", role = "aut")
     )
 Description: The package implements a early terminating version of the complex
- Lars algorithm.
+    Lars algorithm.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+LazyData: true
 Depends:
     R (>= 3.5.0)
 Suggests:

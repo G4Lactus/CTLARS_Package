@@ -402,4 +402,3 @@ Track its developement!
 
 # References
 <!-- <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0px;"></div> -->
-Currently nothing to quote.

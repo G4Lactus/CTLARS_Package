@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 plot.ctlars <- function(x,
                         xlab = "# Included dummies",
-                        ylab = "Mod(Coefficients)",
+                        ylab = "|Coefficients|",
                         include_dummies = TRUE,
                         actions = TRUE,
                         col_selected = "black",
@@ -59,8 +59,8 @@ plot.ctlars <- function(x,
   beta_path <- t(beta_path)
   beta_path_mod <- Mod(beta_path)
   p <- x$get_p()
-  dummies_path <- which(var_select_path > p) + 1
-  dummies_path_labels <- seq(T_stop)
+  dummies_path <- which(var_select_path > p)
+  dummies_path_labels <- seq.int(T_stop)
 
   graphics::matplot(
     beta_path_mod[, seq(1, p)],
@@ -99,9 +99,13 @@ plot.ctlars <- function(x,
   # Add axis above plot to indicate index of added or removed variables
   # (added dummies are indicated with 'D')
   if (actions) {
-    var_select_path_positions <- seq(2, length(var_select_path) + 1)
-    var_select_path_labels <- var_select_path
-    var_select_path_labels[var_select_path_labels > p] <- "D"
+    var_select_path_positions <- seq(1, length(var_select_path))
+    #seq(2, length(var_select_path) + 1)
+    #var_select_path_labels <- var_select_path
+    #var_select_path_labels[var_select_path_labels > p] <- "D"
+    var_select_path_labels <- ifelse(var_select_path > p,
+                                     "D", as.character(var_select_path[var_select_path <= p])
+    )
 
     graphics::axis(
       side = 3,
