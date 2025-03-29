@@ -5,14 +5,13 @@ ctlars Algorithm
 
 # ctlars
 
-**Title**: The CTLARS Algorithm: Complex early-terminated Forward
-Variable Selection
+The CTLARS Algorithm: Complex early-terminated Forward Variable
+Selection
 
-**Description**: It computes the solution path of the complex
-Terminating-LARS (CTLARS) algorithm. The CTLARS algorithm appends dummy
-predictors to the original predictor matrix and terminates the
-forward-selection process after a pre-defined number of dummy variables
-has been selected.
+It computes the solution path of the complex Terminating-LARS (CTLARS)
+algorithm. The CTLARS algorithm appends dummy predictors to the original
+predictor matrix and terminates the forward-selection process after a
+pre-defined number of dummy variables has been selected.
 
 In the following, we show how to use the package and give you an idea of
 why terminating the solution path early is a reasonable approach in
