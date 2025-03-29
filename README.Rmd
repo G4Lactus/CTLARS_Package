@@ -49,7 +49,7 @@ In the following, we illustrate the basic usage of the `ctlars` package for
 performing variable selection in space high-dimensional complex data space,
 using the CTLARS algorithm.
 
-1. **First**, we generate high-dimensional Gaussian data set with sparse support.
+1. We generate high-dimensional Gaussian data set with sparse support.
 ```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 library(ctlars)
 
@@ -81,7 +81,7 @@ if (generate_simdata) {
 ```
 
 
-2. **Second**, we generate a dummy matrix containing `n` rows and `num_dummies`
+2. We generate a dummy matrix containing `n` rows and `num_dummies`
  dummy predictors sampled from a white circularly centered symmetric complex
  Gaussian and append it to the original predictor matrix.
 
@@ -108,7 +108,7 @@ if (generate_simdata) {
 ```
  
 
-3. **Third**, we generate an object of class `ctlars` and supply the information:
+3. We generate an object of class `ctlars` and supply the information:
 ```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 # Run complex terminating lars algorithm
 # ----------------------------------------
@@ -118,14 +118,14 @@ ctlars_obj <- ctlars::ctlars$new(data$X,
                                   )
 ``` 
 
-4. **Fourth**, we perform on CTLARS step on `ctlars_obj`, i.e., the CTLARS
+4. We perform on CTLARS step on `ctlars_obj`, i.e., the CTLARS
 algorithm is run until **t_stop = 1** dummy has entered the solution path
 and stops there:
 ```{r terminated_solution_t_1, echo=TRUE, fig.align='center', message=TRUE, fig.width = 10, fig.height = 6, out.width = "90%"}
 ctlars_obj$execute_clars_step(t_stop = 1, early_stop = TRUE, use_chol = TRUE)
 ```
 
-5. **Five** We evaluate the selection results after **t_stop = 1** dummies have
+5. We evaluate the selection results after **t_stop = 1** dummies have
 been selected.
 ```{r, echo=TRUE, fig.align='center', message=TRUE, fig.width=10, fig.height=6, out.width="90%"}
 # Test
