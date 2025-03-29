@@ -1,10 +1,10 @@
 ---
 title: "ctlars Algorithm"
 output:
+  github_document:
   html_document:
+    variant: markdown_github
     keep_md: true
-  md_document:
-    variant: gfm
   pdf_document: default
 ---
 <!-- README.md is generated from README.Rmd. Please edit that file -->
