@@ -605,12 +605,13 @@ padding-top: 0px;
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 <h1 id="ctlars">ctlars</h1>
-<p>The CTLARS Algorithm: Complex early-terminated Forward Variable
-Selection</p>
-<p>It computes the solution path of the complex Terminating-LARS
-(CTLARS) algorithm. The CTLARS algorithm appends dummy predictors to the
-original predictor matrix and terminates the forward-selection process
-after a pre-defined number of dummy variables has been selected.</p>
+<p>The CT-LARS Algorithm: Complex early-terminated complex-valued
+forward variable selection</p>
+<p>It computes the solution path of the complex-valued terminating-LARS
+(CT-LARS) algorithm. The CT-LARS algorithm appends dummy predictors to
+the original predictor matrix and terminates the forward-selection
+process after a pre-defined number of dummy variables has been
+selected.</p>
 <p>In the following, we show how to use the package and give you an idea
 of why terminating the solution path early is a reasonable approach in
 high-dimensional and sparse variable selection: In many applications,
@@ -622,7 +623,7 @@ most active variables enter the solution path early!</p>
 <h1 id="quick-start">Quick Start</h1>
 <p>In the following, we illustrate the basic usage of the
 <code>ctlars</code> package for performing variable selection in space
-high-dimensional complex data space, using the CTLARS algorithm.</p>
+high-dimensional complex data space, using the CT-LARS algorithm.</p>
 <ol style="list-style-type: decimal">
 <li>We generate high-dimensional Gaussian data set with sparse
 support.</li>
@@ -690,8 +691,8 @@ information:</li>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                  <span class="at">num_dummies =</span> data<span class="sc">$</span>num_dummies</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                                  )</span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
-<li>We perform on CTLARS step on <code>ctlars_obj</code>, i.e., the
-CTLARS algorithm is run until <strong>t_stop = 1</strong> dummy has
+<li>We perform on CT-LARS step on <code>ctlars_obj</code>, i.e., the
+CT-LARS algorithm is run until <strong>t_stop = 1</strong> dummy has
 entered the solution path and stops there:</li>
 </ol>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>ctlars_obj<span class="sc">$</span><span class="fu">execute_clars_step</span>(<span class="at">t_stop =</span> <span class="dv">1</span>, <span class="at">early_stop =</span> <span class="cn">TRUE</span>, <span class="at">use_chol =</span> <span class="cn">TRUE</span>)</span>
