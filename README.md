@@ -1,35 +1,28 @@
----
-title: "ctlars Algorithm"
-output:
-  html_document:
-    variant: markdown_github
-    keep_md: true
-  md_document:
-    variant: markdown_github
-editor_options: 
-  markdown: 
-    wrap: sentence
----
+ctlars Algorithm
+================
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-
 
 # ctlars
 
-<!-- badges: start -->
-<!-- badges: end -->
+**Title**: The CTLARS Algorithm: Complex early-terminated Forward
+Variable Selection
 
-**Title**: The CTLARS Algorithm: Complex early-terminated Forward Variable Selection
+**Description**: It computes the solution path of the complex
+Terminating-LARS (CTLARS) algorithm. The CTLARS algorithm appends dummy
+predictors to the original predictor matrix and terminates the
+forward-selection process after a pre-defined number of dummy variables
+has been selected.
 
-**Description**: It computes the solution path of the complex Terminating-LARS (CTLARS) algorithm.
-The CTLARS algorithm appends dummy predictors to the original predictor matrix and terminates the forward-selection process after a pre-defined number of dummy variables has been selected.
-
-In the following, we show how to use the package and give you an idea of why terminating the solution path early is a reasonable approach in high-dimensional and sparse variable selection: In many applications, most active variables enter the solution path early!
-  
+In the following, we show how to use the package and give you an idea of
+why terminating the solution path early is a reasonable approach in
+high-dimensional and sparse variable selection: In many applications,
+most active variables enter the solution path early!
 
 # Installation
 
-You can install the development version of ctlars from [GitHub](https://github.com/) with:
+You can install the development version of ctlars from
+[GitHub](https://github.com/G4Lactus/CTLARS_Package) with:
 
 ``` r
 # install.packages("devtools")
@@ -37,11 +30,13 @@ You can install the development version of ctlars from [GitHub](https://github.c
 ```
 
 # Quick Start
-In the following, we illustrate the basic usage of the `ctlars` package for
-performing variable selection in space high-dimensional complex data space,
-using the CTLARS algorithm.
 
-1. **First**, we generate high-dimensional Gaussian data set with sparse support.
+In the following, we illustrate the basic usage of the `ctlars` package
+for performing variable selection in space high-dimensional complex data
+space, using the CTLARS algorithm.
+
+1.  **First**, we generate high-dimensional Gaussian data set with
+    sparse support.
 
 ``` r
 library(ctlars)
@@ -73,11 +68,10 @@ if (generate_simdata) {
 }
 ```
 
-
-2. **Second**, we generate a dummy matrix containing `n` rows and `num_dummies`
- dummy predictors sampled from a white circularly centered symmetric complex
- Gaussian and append it to the original predictor matrix.
-
+2.  **Second**, we generate a dummy matrix containing `n` rows and
+    `num_dummies` dummy predictors sampled from a white circularly
+    centered symmetric complex Gaussian and append it to the original
+    predictor matrix.
 
 ``` r
  # Append dummies
@@ -100,9 +94,9 @@ if (generate_simdata) {
  }
  data <- update_data(data, num_dummies = ncol(data$X))
 ```
- 
 
-3. **Third**, we generate an object of class `ctlars` and supply the information:
+3.  **Third**, we generate an object of class `ctlars` and supply the
+    information:
 
 ``` r
 # Run complex terminating lars algorithm
@@ -113,9 +107,9 @@ ctlars_obj <- ctlars::ctlars$new(data$X,
                                   )
 ```
 
-4. **Fourth**, we perform on CTLARS step on `ctlars_obj`, i.e., the CTLARS
-algorithm is run until **t_stop = 1** dummy has entered the solution path
-and stops there:
+4.  **Fourth**, we perform on CTLARS step on `ctlars_obj`, i.e., the
+    CTLARS algorithm is run until **t_stop = 1** dummy has entered the
+    solution path and stops there:
 
 ``` r
 ctlars_obj$execute_clars_step(t_stop = 1, early_stop = TRUE, use_chol = TRUE)
@@ -129,38 +123,24 @@ ctlars_obj$execute_clars_step(t_stop = 1, early_stop = TRUE, use_chol = TRUE)
 #> complex LARS iteration 8 
 #> complex LARS iteration 9 
 #> complex LARS iteration 10 
-#> complex LARS iteration 11 
-#> complex LARS iteration 12 
-#> complex LARS iteration 13
+#> complex LARS iteration 11
 ```
 
-5. **Five** We evaluate the selection results after **t_stop = 1** dummies have
-been selected.
+5.  **Five** We evaluate the selection results after **t_stop = 1**
+    dummies have been selected.
 
 ``` r
 # Test
 # ----------------------------------------
 cat("Proposed index set by CLARS: ", ctlars_obj$get_active_set(), "\n")
-#> Proposed index set by CLARS:  50 113 138 146 63 77 55 18 127 78 252 114 132
-```
-
-``` r
+#> Proposed index set by CLARS:  50 113 138 146 63 77 55 18 127 78 252
 cat("True support: ", drop(data$support), "\n")
 #> True support:  50 146 113 138 63
-```
-
-``` r
 cat("Proposal in true support: ",
      intersect(ctlars_obj$get_active_set(), drop(data$support)), "\n")
 #> Proposal in true support:  50 113 138 146 63
-```
-
-``` r
 cat("Dummies in proposal: ", ctlars_obj$get_active_dummies(), "\n")
 #> Dummies in proposal:  252
-```
-
-``` r
  
 plot(ctlars_obj)
 ```
