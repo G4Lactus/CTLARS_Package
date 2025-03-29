@@ -2,23 +2,16 @@
 title: "ctlars Algorithm"
 output:
   html_document:
-    variant: markdown_github
     keep_md: true
   md_document:
-    variant: markdown_github
-editor_options: 
-  markdown: 
-    wrap: sentence
+    variant: gfm
+  pdf_document: default
 ---
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
 
 # ctlars
-
-<!-- badges: start -->
-<!-- badges: end -->
-
 **Title**: The CTLARS Algorithm: Complex early-terminated Forward Variable Selection
 
 **Description**: It computes the solution path of the complex Terminating-LARS (CTLARS) algorithm.
@@ -29,7 +22,7 @@ In the following, we show how to use the package and give you an idea of why ter
 
 # Installation
 
-You can install the development version of ctlars from [GitHub](https://github.com/) with:
+You can install the development version of ctlars from [GitHub](https://github.com/G4Lactus/CTLARS_Package) with:
 
 ``` r
 # install.packages("devtools")
@@ -129,9 +122,7 @@ ctlars_obj$execute_clars_step(t_stop = 1, early_stop = TRUE, use_chol = TRUE)
 #> complex LARS iteration 8 
 #> complex LARS iteration 9 
 #> complex LARS iteration 10 
-#> complex LARS iteration 11 
-#> complex LARS iteration 12 
-#> complex LARS iteration 13
+#> complex LARS iteration 11
 ```
 
 5. **Five** We evaluate the selection results after **t_stop = 1** dummies have
@@ -141,26 +132,14 @@ been selected.
 # Test
 # ----------------------------------------
 cat("Proposed index set by CLARS: ", ctlars_obj$get_active_set(), "\n")
-#> Proposed index set by CLARS:  50 113 138 146 63 77 55 18 127 78 252 114 132
-```
-
-``` r
+#> Proposed index set by CLARS:  50 113 138 146 63 77 55 18 127 78 252
 cat("True support: ", drop(data$support), "\n")
 #> True support:  50 146 113 138 63
-```
-
-``` r
 cat("Proposal in true support: ",
      intersect(ctlars_obj$get_active_set(), drop(data$support)), "\n")
 #> Proposal in true support:  50 113 138 146 63
-```
-
-``` r
 cat("Dummies in proposal: ", ctlars_obj$get_active_dummies(), "\n")
 #> Dummies in proposal:  252
-```
-
-``` r
  
 plot(ctlars_obj)
 ```

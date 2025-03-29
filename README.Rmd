@@ -2,13 +2,10 @@
 title: "ctlars Algorithm"
 output:
   html_document:
-    variant: markdown_github
     keep_md: true
   md_document:
-    variant: markdown_github
-editor_options: 
-  markdown: 
-    wrap: sentence
+    variant: gfm
+  pdf_document: default
 ---
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -30,10 +27,6 @@ knitr::opts_chunk$set(
 ```
 
 # ctlars
-
-<!-- badges: start -->
-<!-- badges: end -->
-
 **Title**: The CTLARS Algorithm: Complex early-terminated Forward Variable Selection
 
 **Description**: It computes the solution path of the complex Terminating-LARS (CTLARS) algorithm.
@@ -44,7 +37,7 @@ In the following, we show how to use the package and give you an idea of why ter
 
 # Installation
 
-You can install the development version of ctlars from [GitHub](https://github.com/) with:
+You can install the development version of ctlars from [GitHub](https://github.com/G4Lactus/CTLARS_Package) with:
 
 ``` r
 # install.packages("devtools")
