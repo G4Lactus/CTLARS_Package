@@ -5,13 +5,13 @@ ctlars Algorithm
 
 # ctlars
 
-The CTLARS Algorithm: Complex early-terminated Forward Variable
-Selection
+The CT-LARS Algorithm: Complex early-terminated complex-valued forward
+variable selection
 
-It computes the solution path of the complex Terminating-LARS (CTLARS)
-algorithm. The CTLARS algorithm appends dummy predictors to the original
-predictor matrix and terminates the forward-selection process after a
-pre-defined number of dummy variables has been selected.
+It computes the solution path of the complex-valued terminating-LARS
+(CT-LARS) algorithm. The CT-LARS algorithm appends dummy predictors to
+the original predictor matrix and terminates the forward-selection
+process after a pre-defined number of dummy variables has been selected.
 
 In the following, we show how to use the package and give you an idea of
 why terminating the solution path early is a reasonable approach in
@@ -32,7 +32,7 @@ You can install the development version of ctlars from
 
 In the following, we illustrate the basic usage of the `ctlars` package
 for performing variable selection in space high-dimensional complex data
-space, using the CTLARS algorithm.
+space, using the CT-LARS algorithm.
 
 1.  We generate high-dimensional Gaussian data set with sparse support.
 
@@ -103,7 +103,7 @@ ctlars_obj <- ctlars::ctlars$new(data$X,
                                   )
 ```
 
-4.  We perform on CTLARS step on `ctlars_obj`, i.e., the CTLARS
+4.  We perform on CT-LARS step on `ctlars_obj`, i.e., the CT-LARS
     algorithm is run until **t_stop = 1** dummy has entered the solution
     path and stops there:
 
