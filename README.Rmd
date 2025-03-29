@@ -40,7 +40,11 @@ In the following, we show how to use the package and give you an idea of why
 terminating the solution path early is a reasonable approach in high-dimensional
 and sparse variable selection: In many applications, most active variables enter
 the solution path early!
-  
+
+# Paper Citation
+This repository contains code developed for the paper[^1].
+
+[^1]: F. Scheidt, J. Machkour, and M. Muma, **FDR Control for Complex-Valued Data with Application in Single Snapshot Multi-Source Detection and DOA Estimation**. Presented at ICASSP 2025, Hyderabad, India. DOI: [10.1109/ICASSP49660.2025.10889705](https://doi.org/10.1109/ICASSP49660.2025.10889705).
 
 # Installation
 

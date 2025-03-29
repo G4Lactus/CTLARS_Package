@@ -18,6 +18,10 @@ why terminating the solution path early is a reasonable approach in
 high-dimensional and sparse variable selection: In many applications,
 most active variables enter the solution path early!
 
+# Paper Citation
+
+This repository contains code developed for the paper[^1].
+
 # Installation
 
 You can install the development version of ctlars from
@@ -142,3 +146,9 @@ plot(ctlars_obj)
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" />
+
+[^1]: F. Scheidt, J. Machkour, and M. Muma, **FDR Control for
+    Complex-Valued Data with Application in Single Snapshot Multi-Source
+    Detection and DOA Estimation**. Presented at ICASSP 2025, Hyderabad,
+    India. DOI:
+    [10.1109/ICASSP49660.2025.10889705](https://doi.org/10.1109/ICASSP49660.2025.10889705).
